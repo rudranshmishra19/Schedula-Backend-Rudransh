@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Doctor } from './doctor.entity';
@@ -13,16 +13,28 @@ export class DoctorsService {
   ) {}
 
   async onboard(userId: number, data: Partial<Doctor>) {
-    // Assign doctor role to user
     await this.usersService.update(userId, { role: 'doctor' });
-
-    // Create doctor profile with pending status
     const doctor = this.doctorsRepository.create({
       ...data,
       user_id: userId,
       status: 'pending',
     });
-
     return this.doctorsRepository.save(doctor);
+  }
+async getProfile(userId: number) {
+  const doctor = await this.doctorsRepository.findOne({
+    where: { user_id: userId },
+    order: { created_at: 'DESC' },
+  });
+  if (!doctor) {
+    throw new NotFoundException('Doctor profile not found');
+  }
+  return doctor;
+}
+
+  async updateProfile(userId: number, data: Partial<Doctor>) {
+    const doctor = await this.getProfile(userId);
+    await this.doctorsRepository.update(doctor.id, data);
+    return this.getProfile(userId);
   }
 }

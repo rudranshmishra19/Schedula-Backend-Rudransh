@@ -1,0 +1,1502 @@
+{
+  "info": {
+    "_postman_id": "f9bf5cb7-ca88-4fb6-930f-76c111aaf747",
+    "name": "Schedula API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50847867",
+    "_collection_link": "https://go.postman.co/collection/50847867-f9bf5cb7-ca88-4fb6-930f-76c111aaf747?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "GET /auth/google",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            },
+            "description": "Initiates Google OAuth login flow by redirecting the user to Google consent screen."
+          },
+          "response": [
+            {
+              "name": "Success - Redirect",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Found",
+              "code": 302,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Location",
+                  "value": "https://accounts.google.com/o/oauth2/v2/auth?..."
+                }
+              ],
+              "cookie": [],
+              "body": ""
+            },
+            {
+              "name": "Error - Bad Request",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"OAuth configuration missing\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /auth/google/callback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Save access token from callback",
+                  "if (pm.response.code === 200) {",
+                  "  try {",
+                  "    const json = pm.response.json();",
+                  "    if (json && json.access_token) {",
+                  "      pm.collectionVariables.set('access_token', json.access_token);",
+                  "    }",
+                  "  } catch (e) {}",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            },
+            "description": "OAuth callback endpoint hit by Google after user authorization. Exchanges authorization code for an access token."
+          },
+          "response": [
+            {
+              "name": "Success - Token Issued",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.sample\",\n  \"token_type\": \"Bearer\",\n  \"expires_in\": 3600\n}"
+            },
+            {
+              "name": "Error - Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Invalid or expired authorization code\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Onboarding",
+      "item": [
+        {
+          "name": "POST /onboarding/patient",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"age\": 25,\n  \"sex\": \"male\",\n  \"weight\": 70,\n  \"complaint_id\": 1,\n  \"relationship\": \"self\"\n}"
+            },
+            "url": {
+              "raw": ""
+            },
+            "description": "Creates/updates onboarding details for a patient profile."
+          },
+          "response": [
+            {
+              "name": "Success - Patient Onboarded",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"name\": \"John Doe\",\n  \"age\": 25,\n  \"sex\": \"male\",\n  \"weight\": 70,\n  \"complaint_id\": 1,\n  \"relationship\": \"self\",\n  \"created_at\": \"2026-03-07T00:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Error - Bad Request",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Validation error\",\n  \"errors\": [\n    {\n      \"field\": \"age\",\n      \"message\": \"age must be a number\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST /onboarding/doctor",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Dr.\",\n  \"specialization\": \"Cardiologist\",\n  \"experience_years\": 5,\n  \"achievements\": \"MBBS, MD\"\n}"
+            },
+            "url": {
+              "raw": ""
+            },
+            "description": "Creates/updates onboarding details for a doctor profile."
+          },
+          "response": [
+            {
+              "name": "Success - Doctor Onboarded",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"title\": \"Dr.\",\n  \"specialization\": \"Cardiologist\",\n  \"experience_years\": 5,\n  \"achievements\": \"MBBS, MD\",\n  \"created_at\": \"2026-03-07T00:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Error - Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Missing or invalid access token\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Profile",
+      "item": [
+        {
+          "name": "Create or Update Patient Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 or 201\", function () {",
+                  "    pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    try {",
+                  "        pm.response.json();",
+                  "    } catch (e) {",
+                  "        pm.expect.fail(\"Response body is not valid JSON: \" + e.message);",
+                  "    }",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"John Doe\",\"age\":25,\"sex\":\"male\",\"weight\":70,\"complaint_id\":1,\"relationship\":\"self\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "profile"
+              ]
+            },
+            "description": "Create or update patient profile. Requires Bearer token auth (token: {{token}})."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"name\":\"John Doe\",\"age\":25,\"sex\":\"male\",\"weight\":70,\"complaint_id\":1,\"relationship\":\"self\"}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/patients/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "patients",
+                    "profile"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}",
+                  "description": "",
+                  "enabled": true
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "enabled": true
+                }
+              ],
+              "cookie": [],
+              "body": "{\"id\":1,\"user_id\":1,\"name\":\"John Doe\",\"age\":25,\"sex\":\"male\",\"weight\":70,\"complaint_id\":1,\"relationship\":\"self\",\"created_at\":\"2026-03-06T07:02:31.439Z\"}"
+            }
+          ]
+        },
+        {
+          "name": "Get Patient Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 or 201\", function () {",
+                  "    pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    try {",
+                  "        pm.response.json();",
+                  "    } catch (e) {",
+                  "        pm.expect.fail(\"Response body is not valid JSON: \" + e.message);",
+                  "    }",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/patients/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "profile"
+              ]
+            },
+            "description": "Get logged in patient's profile. Requires Bearer token auth (token: {{token}})."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/patients/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "patients",
+                    "profile"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}",
+                  "description": "",
+                  "enabled": true
+                }
+              ],
+              "cookie": [],
+              "body": "{\"id\":1,\"user_id\":1,\"name\":\"John Doe\",\"age\":25,\"sex\":\"male\",\"weight\":70,\"complaint_id\":1,\"relationship\":\"self\",\"created_at\":\"2026-03-06T07:02:31.439Z\"}"
+            }
+          ]
+        },
+        {
+          "name": "Update Patient Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 or 201\", function () {",
+                  "    pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    try {",
+                  "        pm.response.json();",
+                  "    } catch (e) {",
+                  "        pm.expect.fail(\"Response body is not valid JSON: \" + e.message);",
+                  "    }",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"age\":26,\"weight\":75}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/patients/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "patients",
+                "profile"
+              ]
+            },
+            "description": "Update patient profile. Requires Bearer token auth (token: {{token}})."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"age\":26,\"weight\":75}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/patients/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "patients",
+                    "profile"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}",
+                  "description": "",
+                  "enabled": true
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "enabled": true
+                }
+              ],
+              "cookie": [],
+              "body": "{\"id\":1,\"user_id\":1,\"name\":\"John Doe\",\"age\":26,\"sex\":\"male\",\"weight\":75,\"complaint_id\":1,\"relationship\":\"self\",\"created_at\":\"2026-03-06T07:02:31.439Z\"}"
+            }
+          ]
+        },
+        {
+          "name": "Get Doctor Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200 or 201\", function () {",
+                  "    pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    try {",
+                  "        pm.response.json();",
+                  "    } catch (e) {",
+                  "        pm.expect.fail(\"Response body is not valid JSON: \" + e.message);",
+                  "    }",
+                  "});",
+                  ""
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/doctors/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctors",
+                "profile"
+              ]
+            },
+            "description": "Get logged in doctor's profile. Requires Bearer token auth (token: {{token}})."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/doctors/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "doctors",
+                    "profile"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}",
+                  "description": "",
+                  "enabled": true
+                }
+              ],
+              "cookie": [],
+              "body": "{\"id\":1,\"user_id\":1,\"title\":\"Dr.\",\"specialization\":\"Cardiologist\",\"experience_years\":5,\"achievements\":\"MBBS, MD\",\"status\":\"pending\",\"created_at\":\"2026-03-06T07:23:27.700Z\"}"
+            }
+          ]
+        },
+        {
+          "name": "Update Doctor Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 201\", function () {",
+                  "    pm.expect([200, 201]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "pm.test(\"Response is valid JSON\", function () {",
+                  "    try {",
+                  "        pm.response.json();",
+                  "    } catch (e) {",
+                  "        pm.expect.fail(\"Response body is not valid JSON: \" + e.message);",
+                  "    }",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"specialization\":\"Neurologist\",\"experience_years\":6}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/doctors/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "doctors",
+                "profile"
+              ]
+            },
+            "description": "Update doctor profile. Requires Bearer token auth (token: {{token}})."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\"specialization\":\"Neurologist\",\"experience_years\":6}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/doctors/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "doctors",
+                    "profile"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Authorization",
+                  "value": "Bearer {{token}}",
+                  "description": "",
+                  "enabled": true
+                },
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "enabled": true
+                }
+              ],
+              "cookie": [],
+              "body": "{\"id\":1,\"user_id\":1,\"title\":\"Dr.\",\"specialization\":\"Neurologist\",\"experience_years\":6,\"achievements\":\"MBBS, MD\",\"status\":\"pending\",\"created_at\":\"2026-03-06T07:23:27.700Z\"}"
+            }
+          ]
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// Folder-level pre-request: ensure requests inherit Bearer auth from this folder.",
+              "// (No logic needed here; auth is configured via the folder's Auth tab.)",
+              ""
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Availability",
+      "item": []
+    },
+    {
+      "name": "Custom Availability",
+      "item": [
+        {
+          "name": "DELETE /availability/custom/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/availability/custom/{{customAvailabilityId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability",
+                "custom",
+                "{{customAvailabilityId}}"
+              ]
+            },
+            "description": "Delete a specific custom availability"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/availability/custom/:customAvailabilityId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "availability",
+                    "custom",
+                    ":customAvailabilityId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "customAvailabilityId",
+                      "value": "2",
+                      "description": "Custom availability id",
+                      "enabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Custom availability deleted successfully\"\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/availability/custom/:customAvailabilityId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "availability",
+                    "custom",
+                    ":customAvailabilityId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "customAvailabilityId",
+                      "value": "2",
+                      "description": "Custom availability id",
+                      "enabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Unauthorized\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "PATCH /availability/custom/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"is_available\":false}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/availability/custom/{{customAvailabilityId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability",
+                "custom",
+                "{{customAvailabilityId}}"
+              ]
+            },
+            "description": "Update a specific custom availability"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"is_available\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/availability/custom/:customAvailabilityId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "availability",
+                    "custom",
+                    ":customAvailabilityId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "customAvailabilityId",
+                      "value": "2",
+                      "description": "Custom availability id",
+                      "enabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "enabled": true
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 2,\n  \"doctor_id\": 1,\n  \"specific_date\": \"2026-03-25\",\n  \"consult_start_time\": \"09:00\",\n  \"consult_end_time\": \"12:00\",\n  \"schedule_type\": \"WAVE\",\n  \"session\": \"Special Clinic\",\n  \"max_patients\": 15,\n  \"slot_duration_minutes\": 30,\n  \"is_available\": false,\n  \"updated_at\": \"2026-03-07T00:00:00.000Z\"\n}"
+            },
+            {
+              "name": "404 Not Found",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"is_available\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/availability/custom/:customAvailabilityId",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "availability",
+                    "custom",
+                    ":customAvailabilityId"
+                  ],
+                  "variable": [
+                    {
+                      "key": "customAvailabilityId",
+                      "value": "9999",
+                      "description": "Non-existent custom availability id",
+                      "enabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "enabled": true
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Custom availability not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /availability/custom",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/availability/custom",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability",
+                "custom"
+              ]
+            },
+            "description": "Get doctor's custom availability"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/availability/custom",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "availability",
+                    "custom"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": 2,\n    \"doctor_id\": 1,\n    \"specific_date\": \"2026-03-25\",\n    \"consult_start_time\": \"09:00\",\n    \"consult_end_time\": \"12:00\",\n    \"schedule_type\": \"WAVE\",\n    \"session\": \"Special Clinic\",\n    \"max_patients\": 15,\n    \"slot_duration_minutes\": 30,\n    \"is_available\": true\n  }\n]"
+            },
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/availability/custom",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "availability",
+                    "custom"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Unauthorized\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST /availability/custom",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"specific_date\":\"2026-03-25\",\"consult_start_time\":\"09:00\",\"consult_end_time\":\"12:00\",\"schedule_type\":\"WAVE\",\"session\":\"Special Clinic\",\"max_patients\":15,\"slot_duration_minutes\":30,\"is_available\":true}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/availability/custom",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "availability",
+                "custom"
+              ]
+            },
+            "description": "Create custom availability for a specific date"
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"specific_date\": \"2026-03-25\",\n  \"consult_start_time\": \"09:00\",\n  \"consult_end_time\": \"12:00\",\n  \"schedule_type\": \"WAVE\",\n  \"session\": \"Special Clinic\",\n  \"max_patients\": 15,\n  \"slot_duration_minutes\": 30,\n  \"is_available\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/availability/custom",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "availability",
+                    "custom"
+                  ]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "enabled": true
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 2,\n  \"doctor_id\": 1,\n  \"specific_date\": \"2026-03-25\",\n  \"consult_start_time\": \"09:00\",\n  \"consult_end_time\": \"12:00\",\n  \"schedule_type\": \"WAVE\",\n  \"session\": \"Special Clinic\",\n  \"max_patients\": 15,\n  \"slot_duration_minutes\": 30,\n  \"is_available\": true,\n  \"created_at\": \"2026-03-07T00:00:00.000Z\"\n}"
+            },
+            {
+              "name": "401 Unauthorized",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"specific_date\": \"2026-03-25\",\n  \"consult_start_time\": \"09:00\",\n  \"consult_end_time\": \"12:00\",\n  \"schedule_type\": \"WAVE\",\n  \"session\": \"Special Clinic\",\n  \"max_patients\": 15,\n  \"slot_duration_minutes\": 30,\n  \"is_available\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/availability/custom",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "availability",
+                    "custom"
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "enabled": true
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Unauthorized\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Regular Availability",
+      "item": [
+        {
+          "name": "DELETE /availability/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": ""
+            },
+            "description": "Deletes an availability entry by ID."
+          },
+          "response": [
+            {
+              "name": "Success - Availability Deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "Text",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            },
+            {
+              "name": "Error - Not Found",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Availability not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "PATCH /availability/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_available\": false\n}"
+            },
+            "url": {
+              "raw": ""
+            },
+            "description": "Updates an existing availability entry by ID."
+          },
+          "response": [
+            {
+              "name": "Success - Availability Updated",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"is_available\": false,\n  \"updated_at\": \"2026-03-07T00:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Error - Not Found",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Availability not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET /availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": ""
+            },
+            "description": "Lists availability schedule entries."
+          },
+          "response": [
+            {
+              "name": "Success - List Availability",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "[\n  {\n    \"id\": 1,\n    \"day_of_week\": \"Monday\",\n    \"consult_start_time\": \"10:00\",\n    \"consult_end_time\": \"11:30\",\n    \"schedule_type\": \"WAVE\",\n    \"session\": \"Morning Clinic\",\n    \"max_patients\": 10,\n    \"slot_duration_minutes\": 30,\n    \"is_available\": true\n  }\n]"
+            },
+            {
+              "name": "Error - Unauthorized",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Missing or invalid access token\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "POST /availability",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"day_of_week\": \"Monday\",\n  \"consult_start_time\": \"10:00\",\n  \"consult_end_time\": \"11:30\",\n  \"schedule_type\": \"WAVE\",\n  \"session\": \"Morning Clinic\",\n  \"max_patients\": 10,\n  \"slot_duration_minutes\": 30,\n  \"is_available\": true\n}"
+            },
+            "url": {
+              "raw": ""
+            },
+            "description": "Creates a new availability schedule entry."
+          },
+          "response": [
+            {
+              "name": "Success - Availability Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"day_of_week\": \"Monday\",\n  \"consult_start_time\": \"10:00\",\n  \"consult_end_time\": \"11:30\",\n  \"schedule_type\": \"WAVE\",\n  \"session\": \"Morning Clinic\",\n  \"max_patients\": 10,\n  \"slot_duration_minutes\": 30,\n  \"is_available\": true,\n  \"created_at\": \"2026-03-07T00:00:00.000Z\"\n}"
+            },
+            {
+              "name": "Error - Bad Request",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": ""
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "Text",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Validation error\",\n  \"errors\": [\n    {\n      \"field\": \"consult_end_time\",\n      \"message\": \"consult_end_time must be after consult_start_time\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "access_token",
+      "value": ""
+    },
+    {
+      "key": "availabilityId",
+      "value": "1"
+    },
+    {
+      "key": "customAvailabilityId",
+      "value": ""
+    }
+  ]
+}
