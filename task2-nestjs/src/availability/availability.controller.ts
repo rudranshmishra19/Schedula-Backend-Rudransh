@@ -28,7 +28,7 @@ export class AvailabilityController {
       max_patients: body.max_patients,
       slot_duration_minutes: body.slot_duration_minutes,
       is_available: body.is_available,
-    });
+    }, body.month, body.year);  // 👈 pass month and year
   }
 
   @Get()
@@ -49,7 +49,7 @@ export class AvailabilityController {
   @Post('custom')
   async createCustom(@Req() req, @Body() body) {
     return this.availabilityService.createCustom(req.user.id, {
-      specific_date: body.specific_date,
+      date: body.date,
       consult_start_time: body.consult_start_time,
       consult_end_time: body.consult_end_time,
       schedule_type: body.schedule_type,

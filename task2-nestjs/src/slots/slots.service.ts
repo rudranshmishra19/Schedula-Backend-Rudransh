@@ -11,40 +11,57 @@ export class SlotsService {
     private slotsRepository: Repository<Slot>,
   ) {}
 
-  async generateSlots(availability: Availability): Promise<Slot[]> {
-    const slots: Slot[] = [];
+async generateSlots(availability: Availability): Promise<Slot[]> {
+  const slots: Slot[] = [];
 
-    const [startHour, startMin] = availability.consult_start_time
-      .split(':')
-      .map(Number);
-    const [endHour, endMin] = availability.consult_end_time
-      .split(':')
-      .map(Number);
+  const [startHour, startMin] = availability.consult_start_time.split(':').map(Number);
+  const [endHour, endMin] = availability.consult_end_time.split(':').map(Number);
 
-    const startTotal = startHour * 60 + startMin;
-    const endTotal = endHour * 60 + endMin;
-    const duration = availability.slot_duration_minutes;
+  const startTotal = startHour * 60 + startMin;
+  const endTotal = endHour * 60 + endMin;
+  const duration = availability.slot_duration_minutes;
 
-    for (let current = startTotal; current < endTotal; current += duration) {
-      const slotStart = this.minutesToTime(current);
-      const slotEnd = this.minutesToTime(current + duration);
+  let patientsAssigned = 0;  //  track total patients assigned
 
-      const slot = this.slotsRepository.create({
-        availability_id: availability.id,
-        doctor_id: availability.doctor_id,
-        start_time: slotStart,
-        end_time: slotEnd,
-        max_patients: availability.max_patients,
-        booked_count: 0,
-        status: 'available',
-        schedule_type: availability.schedule_type,
-      });
-
-      slots.push(slot);
+  for (let current = startTotal; current < endTotal; current += duration) {
+    
+    //  Stop if total_patients reached (for WAVE)
+    if (availability.schedule_type === 'WAVE' && 
+        availability.total_patients &&
+        patientsAssigned >= availability.total_patients) {
+      break;
     }
 
-    return this.slotsRepository.save(slots);
+    //  For WAVE: last slot might get fewer patients
+    const remainingPatients = availability.total_patients 
+      ? availability.total_patients - patientsAssigned 
+      : availability.max_patients;
+      
+    const slotMaxPatients = availability.schedule_type === 'WAVE'
+      ? Math.min(availability.max_patients, remainingPatients)
+      : availability.max_patients;  // STREAM always 1
+
+    const slotStart = this.minutesToTime(current);
+    const slotEnd = this.minutesToTime(current + duration);
+
+    const slot = this.slotsRepository.create({
+      availability_id: availability.id,
+      doctor_id: availability.doctor.id,
+      start_time: slotStart,
+      end_time: slotEnd,
+      max_patients: availability.schedule_type === 'STREAM' ? 1: slotMaxPatients,  //  correct per slot
+      booked_count: 0,
+      status: 'available',
+      schedule_type: availability.schedule_type,
+    });
+
+    patientsAssigned += slotMaxPatients;  //  track assigned
+    slots.push(slot);
   }
+
+  return this.slotsRepository.save(slots);
+}
+
 
   private minutesToTime(minutes: number): string {
     const hrs = Math.floor(minutes / 60).toString().padStart(2, '0');
@@ -63,4 +80,7 @@ export class SlotsService {
       where: { doctor_id: doctorId },
     });
   }
+  async deleteSlotsByAvailability(availabilityId: number): Promise<void> {
+  await this.slotsRepository.delete({ availability_id: availabilityId });
+}
 }

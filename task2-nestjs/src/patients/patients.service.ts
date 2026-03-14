@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Patient } from './patient.entity';
@@ -13,17 +13,30 @@ export class PatientsService {
   ) {}
 
   async onboard(userId: number, data: Partial<Patient>) {
+    //  Check for duplicate relationship per user
+    const existing = await this.patientsRepository.findOne({
+      where: { 
+        user: { id: userId },
+        relationship: data.relationship,
+      },
+    });
+
+    if (existing) {
+      throw new ConflictException(`Patient with relationship "${data.relationship}" already exists for this user`);
+    }
+
     await this.usersService.update(userId, { role: 'patient' });
+
     const patient = this.patientsRepository.create({
       ...data,
-      user_id: userId,
+      user: { id: userId },  //  fixed
     });
     return this.patientsRepository.save(patient);
   }
 
   async getProfile(userId: number) {
     const patient = await this.patientsRepository.findOne({
-      where: { user_id: userId },
+      where: { user: { id: userId } },  //  fixed
     });
     if (!patient) {
       throw new NotFoundException('Patient profile not found');

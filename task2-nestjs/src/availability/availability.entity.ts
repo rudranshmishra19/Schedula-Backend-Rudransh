@@ -12,22 +12,15 @@ import { Doctor } from '../doctors/doctor.entity';
 export class Availability {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
-  user_id: number;
-
-  @ManyToOne(() => Doctor)
+  @ManyToOne(() => Doctor, { onDelete: 'CASCADE' })  // ✅ added onDelete
   @JoinColumn({ name: 'doctor_id' })
   doctor: Doctor;
 
-  @Column()
-  doctor_id: number;
-
-  @Column({ nullable: true })
-  day_of_week: string;
+  @Column({ nullable: true, type: 'simple-array' })
+  day_of_week: string[];
 
   @Column({ nullable: true, type: 'date' })
-  specific_date: string;
+  date: string;
 
   @Column({ type: 'time' })
   consult_start_time: string;
@@ -41,8 +34,11 @@ export class Availability {
   @Column({ nullable: true })
   session: string;
 
-  @Column()
+  @Column({ default: 1 })
   max_patients: number;
+
+  @Column({ nullable: true })
+  total_patients: number;
 
   @Column()
   slot_duration_minutes: number;

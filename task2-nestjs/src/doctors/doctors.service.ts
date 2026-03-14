@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Doctor } from './doctor.entity';
@@ -13,24 +13,35 @@ export class DoctorsService {
   ) {}
 
   async onboard(userId: number, data: Partial<Doctor>) {
+    //  Check for duplicate before creating
+    const existing = await this.doctorsRepository.findOne({
+      where: { user: { id: userId } },
+    });
+
+    if (existing) {
+      throw new ConflictException('Doctor profile already exists for this user');
+    }
+
     await this.usersService.update(userId, { role: 'doctor' });
+
     const doctor = this.doctorsRepository.create({
       ...data,
-      user_id: userId,
+      user: { id: userId },  //  fixed
       status: 'pending',
     });
     return this.doctorsRepository.save(doctor);
   }
-async getProfile(userId: number) {
-  const doctor = await this.doctorsRepository.findOne({
-    where: { user_id: userId },
-    order: { created_at: 'DESC' },
-  });
-  if (!doctor) {
-    throw new NotFoundException('Doctor profile not found');
+
+  async getProfile(userId: number) {
+    const doctor = await this.doctorsRepository.findOne({
+      where: { user: { id: userId } },  // fixed
+      order: { created_at: 'DESC' },
+    });
+    if (!doctor) {
+      throw new NotFoundException('Doctor profile not found');
+    }
+    return doctor;
   }
-  return doctor;
-}
 
   async updateProfile(userId: number, data: Partial<Doctor>) {
     const doctor = await this.getProfile(userId);
