@@ -5,20 +5,19 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  Unique,  ///
 } from 'typeorm';
 import { User } from '../users/user.entity';
 
 @Entity('doctors')
+@Unique(['user']) // this one
 export class Doctor {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => User)
+  @ManyToOne(() => User,{onDelete: 'CASCADE', eager:false })
   @JoinColumn({ name: 'user_id' })
   user: User;
-
-  @Column()
-  user_id: number;
 
   @Column({ nullable: true })
   title: string;
